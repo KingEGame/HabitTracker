@@ -1,8 +1,8 @@
 package kg.habittracker.project.entity;
 
-import jakarta.persistence.*;
 import lombok.*;
 
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
