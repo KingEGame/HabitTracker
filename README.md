@@ -1,13 +1,7 @@
 # HabitTracker
 
-1) во первых чтобы запустить проект нужно учтонить докер и запутить следующие команды с терминала cmd:
->docker network create kafka-demo \
-> \
->docker run -d --net=kafka-demo --name=zookeeper-demo -e ZOOKEEPER_CLIENT_PORT=32181  confluentinc/cp-zookeeper:4.0.0 \
-> \
-> docker logs zookeeper-demo\
-> \
-> docker run –-network=kafka-demo -d -p 9092:9092 –-name=kafka-demo -e KAFKA_ZOOKEEPER_CONNECT=zookeeper-demo:32181 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092 -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 confluentinc/cp-kafka:4.0.0
+1) во первых хагрузи докер и поставь все последние обновления WSL/WSL2 для докера
+2) Во вторых запусти docker-compose.yml файл через командну строку через команду docker-compose up -d
+3) Во третьих нужно устоновить сервер БД PostgreSQL и написасть в файле application.properties свой логин и пароль от нее для подключение к проекту
 
-2) Во вторых нужно устоновить сервер БД PostgreSQL и написасть в файле application.properties свой логин и пароль от нее для подключение к проекту 
-
+Потом открой броузер с URL: http://localhost:8081/
