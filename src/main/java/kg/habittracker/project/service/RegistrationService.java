@@ -1,6 +1,6 @@
 package kg.habittracker.project.service;
 
-import kg.habittracker.project.componets.RegistrationRequest;
+import kg.habittracker.project.records.RegistrationRequest;
 import org.springframework.stereotype.Service;
 
 @Service

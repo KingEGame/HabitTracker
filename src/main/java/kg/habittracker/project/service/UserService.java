@@ -1,13 +1,10 @@
 package kg.habittracker.project.service;
 
-//import jakarta.mail.MessagingException;
-//import jakarta.mail.internet.MimeMessage;
 import kg.habittracker.project.details.UserDetail;
 import kg.habittracker.project.entity.User;
 import kg.habittracker.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Random;
@@ -26,10 +22,10 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    private final static String USER_NOT_FOUND = "user with email %s not found";
+    @Autowired
+    private DefaultEmailService emailService;
 
-//    @Autowired
-    private JavaMailSender mailSender;
+    private final static String USER_NOT_FOUND = "user with email %s not found";
 
 //    @Autowired
     private PasswordEncoder passwordEncoder;
@@ -49,11 +45,11 @@ public class UserService implements UserDetailsService {
     }
 
     public void sendOTPEmail(User user, String OTP) throws UnsupportedEncodingException, MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-
-        helper.setFrom("damirov.ilian@gmail.com", "habitTracker");
-        helper.setTo(user.getEmail());
+//        MimeMessage message = mailSender.createMimeMessage();
+//        MimeMessageHelper helper = new MimeMessageHelper(message);
+//
+//        helper.setFrom("damirov.ilian@gmail.com", "habitTracker");
+//        helper.setTo(user.getEmail());
 
         String subject = "Here's your One Time Password (OTP) - Expire in 5 minutes!";
 
@@ -64,11 +60,13 @@ public class UserService implements UserDetailsService {
                 + "<br>"
                 + "<p>Note: this OTP is set to expire in 5 minutes.</p>";
 
-        helper.setSubject(subject);
+//        helper.setSubject(subject);
+//
+//        helper.setText(content, true);
+//
+//        mailSender.send(message);
+        emailService.sendSimpleEmail(user.getEmail(), subject, content);
 
-        helper.setText(content, true);
-
-        mailSender.send(message);
 
     }
 
@@ -79,7 +77,32 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return UserDetail.builder().user(userRepository.findUserByEmail(email)).build();
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findUserByEmail(username);
+
+        if(user == null){
+            user = userRepository.findUserByUsername(username);
+        }
+
+        return UserDetail.builder().user(user).build();
     }
+
+    private static final long OTP_VALID_DURATION = 5 * 60 * 1000;   // 5 minutes
+
+    public boolean isOTPRequired(User user) {
+        if (user.getOneTimePassword() == null) {
+            return false;
+        }
+
+        long currentTimeInMillis = System.currentTimeMillis();
+        long otpRequestedTimeInMillis = user.getOtpRequestedTime().getTime();
+
+        if (otpRequestedTimeInMillis + OTP_VALID_DURATION < currentTimeInMillis) {
+            // OTP expires
+            return false;
+        }
+
+        return true;
+    }
+
 }

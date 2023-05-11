@@ -1,19 +1,25 @@
 package kg.habittracker.project.controller;
 
-import kg.habittracker.project.componets.RegistrationRequest;
+import kg.habittracker.project.records.RegistrationRequest;
 import kg.habittracker.project.service.RegistrationService;
-import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping(path = "api/v1/regitration")
-@AllArgsConstructor
+@Controller
 public class RegitrationController {
 
+    @Autowired
     private RegistrationService registrationService;
-    public String registration(@RequestBody RegistrationRequest request){
+
+    @GetMapping("/registration")
+    public String page(){
+        return "registration.html";
+    }
+
+    @PostMapping("/registration")
+    public String registration(@ModelAttribute RegistrationRequest request){
         return registrationService.register(request);
     }
 }

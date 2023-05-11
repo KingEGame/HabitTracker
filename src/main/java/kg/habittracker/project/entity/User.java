@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.Date;
 
 @Entity
-@Table(name = "User")
+@Table(name = "client")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -23,7 +23,6 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence")
-    @SequenceGenerator(name = "sequence", sequenceName = "sequence", allocationSize = 1)
     private Long id;
 
     private String username;
