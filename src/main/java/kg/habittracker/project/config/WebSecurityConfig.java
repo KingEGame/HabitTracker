@@ -14,28 +14,45 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
 @Configuration
 @AllArgsConstructor
 @EnableWebSecurity
-public class WebSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserService usersService;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-    @Bean
-    @Order(1)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/api/v*/registration/**")
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http  .authorizeRequests()
+                .antMatchers("/registration", "/css/**", "/js/**", "/fonts/**", "/vendor/**", "/images/**", "/api/v1/messages**").permitAll()
+//                    .and().authorizeRequests().antMatchers("/**").hasAnyRole(RolesEnum.getAvailableRoles())
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login")
+//                .usernameParameter("login")
+                .defaultSuccessUrl("/",true)
                 .permitAll()
-                .anyRequest()
-                .authenticated().and()
-                .formLogin();
-        return http.build();
+                .and()
+                .logout()
+                .logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
+                .and()
+                .rememberMe()
+                .key("#QqMhsVYdkE&9-!v")
+                .userDetailsService(usersService)
+                .and()
+                .csrf().disable();
+//                .addFilterAfter(switchUserFilter(), FilterSecurityInterceptor.class);
     }
 
     @Override
